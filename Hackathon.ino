@@ -17,7 +17,7 @@ int g_angle = 0;
 bool tourInIdle = true;
 Adafruit_PWMServoDriver driver = Adafruit_PWMServoDriver();
 float angle = 0.0f;
-float angle_delta = 0.25f;
+float angle_delta = 0.125f;
 enum class State {
   Idle,
   Aim,
@@ -126,7 +126,7 @@ void loop() {
 
   // aim taget if target detected
   if (state == State::Aim) {
-    int delta = map(pos, 0, 640, -32, 32);
+    int delta = map(pos, 0, 640, 32, -32);
     angle += delta;
     if (angle > 90) {
       angle = 90;
@@ -141,7 +141,7 @@ void loop() {
   }
 
   // long distance reaction to target if taget locked and far
-  if (state == State::Lock && scale >= 40) {
+  if (state == State::Lock && scale <= 40) {
     driver.setPWM(4,
                   1.024,
                   map(45, -90.0, 90.0, 204.8, 409.6));
@@ -153,10 +153,10 @@ void loop() {
   }
 
   // close distance reaction to target if target locked and close
-  if (state == State::Lock && scale < 40) {
+  if (state == State::Lock && scale > 40) {
     driver.setPWM(4,
                   1.024,
-                  map(45, -90.0, 90.0, 204.8, 409.6));
+                  map(50, -90.0, 90.0, 204.8, 409.6));
     int interval = 500 / 10;
     for (int i = 0; i < 5; ++i) {
       digitalWrite(LED, LOW);
